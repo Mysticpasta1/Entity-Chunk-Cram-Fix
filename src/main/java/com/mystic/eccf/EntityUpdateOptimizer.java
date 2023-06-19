@@ -1,12 +1,12 @@
 package com.mystic.eccf;
 
+import com.mystic.eccf.config.ECCFConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.item.ItemEndCrystal;
-import net.minecraft.item.ItemHangingEntity;
+import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -32,7 +32,6 @@ import java.util.Set;
 public class EntityUpdateOptimizer {
 
     // The maximum number of entities in a chunk before optimization is triggered
-    private static final int MAX_ENTITIES_PER_CHUNK = 50;
     private Map<ChunkPos, Integer> entityCountMap;
     private Set<Integer> pendingRemovalEntities;
 
@@ -53,15 +52,16 @@ public class EntityUpdateOptimizer {
         Entity entity = event.getEntity();
         World world = entity.getEntityWorld();
 
-        if (!world.isRemote && shouldOptimizeEntity(entity)) {
+        if (!world.isRemote && shouldOptimizeEntity(entity) && !entity.isDead) {
             ChunkPos chunkPos = getChunkPos(entity);
-            int entityCount = getEntityCountInChunk(chunkPos);
+            int entityCount = getEntityCountInChunk(chunkPos, (WorldServer) world);
 
-            if (entityCount > MAX_ENTITIES_PER_CHUNK) {
-                entity.setDead(); // Mark the entity for removal without killing it
+            if (entityCount > ECCFConfig.maxEntitiesPerChunk.get()) {
+                unloadAndReloadChunk(chunkPos, (WorldServer) world);
+                entity.setDead();
                 pendingRemovalEntities.add(entity.getEntityId());
             } else {
-                incrementEntityCount(chunkPos);
+                incrementEntityCount(chunkPos, (WorldServer) world);
             }
         }
     }
@@ -77,7 +77,7 @@ public class EntityUpdateOptimizer {
                 if (!worldServer.isRemote) {
                     for (Integer entityId : pendingRemovalEntities) {
                         Entity entity = worldServer.getEntityByID(entityId);
-                        if (entity != null) {
+                        if (entity != null && entity.isEntityAlive()) {
                             ChunkPos chunkPos = getChunkPos(entity);
                             removeEntityFromTracker(entity, worldServer, chunkPos);
                         }
@@ -88,12 +88,8 @@ public class EntityUpdateOptimizer {
         }
     }
 
-    private int getEntityCountInChunk(ChunkPos chunkPos) {
-        return entityCountMap.getOrDefault(chunkPos, 0);
-    }
-
-    private void incrementEntityCount(ChunkPos chunkPos) {
-        int count = getEntityCountInChunk(chunkPos);
+    private void incrementEntityCount(ChunkPos chunkPos, WorldServer world) {
+        int count = getEntityCountInChunk(chunkPos, world);
         entityCountMap.put(chunkPos, count + 1);
     }
 
@@ -110,11 +106,40 @@ public class EntityUpdateOptimizer {
         }
     }
 
-
     private ChunkPos getChunkPos(Entity entity) {
         BlockPos entityPos = entity.getPosition();
         int chunkX = entityPos.getX() >> 4;
         int chunkZ = entityPos.getZ() >> 4;
         return new ChunkPos(chunkX, chunkZ);
+    }
+
+    private int getEntityCountInChunk(ChunkPos chunkPos, WorldServer world) {
+        Chunk chunk = world.getChunkProvider().getLoadedChunk(chunkPos.x, chunkPos.z);
+        if (chunk != null) {
+            int entityCount = 0;
+
+            ClassInheritanceMultiMap<Entity> entityList = chunk.getEntityLists()[0];
+
+            entityCount = entityList.size();
+
+            for (Entity entity : entityList) {
+                if (!shouldOptimizeEntity(entity) && !entity.isDead) {
+                    entityCount--;
+                }
+            }
+
+            return entityCount;
+        }
+        return 0;
+    }
+
+    private void unloadAndReloadChunk(ChunkPos chunkPos, WorldServer world) {
+        ChunkProviderServer chunkProvider = world.getChunkProvider();
+        Chunk chunk = chunkProvider.getLoadedChunk(chunkPos.x, chunkPos.z);
+
+        if (chunk != null) {
+            chunkProvider.queueUnload(chunk);
+            chunkProvider.loadChunk(chunkPos.x, chunkPos.z);
+        }
     }
 }

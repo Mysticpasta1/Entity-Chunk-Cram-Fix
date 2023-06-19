@@ -105,10 +105,11 @@ dependencies {
 
     // Example of deobfuscating a dependency
     // implementation rfg.deobf('curse.maven:had-enough-items-557549:4543375')
+    implementation rfg.deobf('curse.maven:supermartijn642s-config-lib-438332:3862959')
 
     if (project.use_mixins.toBoolean()) {
         // Change your mixin refmap name here:
-        String mixin = modUtils.enableMixins('org.spongepowered:mixin:0.8.5', "mixins.${project.archives_base_name}.refmap.json")
+        String mixin = modUtils.enableMixins('org.spongepowered:mixin:0.8.3', "mixins.${project.archives_base_name}.refmap.json")
         api (mixin) {
             transitive = false
         }
