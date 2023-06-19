@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "eccf",
+  "name": "Entity Chunk Cram Fix",
+  "description": "Fixes max entity count of summon entity and spawned entity per chunk",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["CleanroomMC"],
-  "credits": "Authors of this project",
+  "authorList": ["Mysticpasta1"],
+  "credits": "",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

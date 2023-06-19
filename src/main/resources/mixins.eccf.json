@@ -1,0 +1,10 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "package": "com.mystic.eccf.mixin",
+  "refmap": "refmap.eccf.json",
+  "mixins": [
+    "RemoveStupidTrackerWarning"
+  ],
+  "client": [],
+  "server": []
+}
