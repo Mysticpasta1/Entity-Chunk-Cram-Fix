@@ -3,12 +3,14 @@ package com.mystic.eccf;
 import com.mystic.eccf.config.ECCFConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityHanging;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.util.ClassInheritanceMultiMap;
@@ -72,9 +74,7 @@ public class EntityUpdateOptimizer {
     }
 
     private boolean shouldOptimizeEntity(Entity entity) {
-        return !(entity instanceof EntityHanging || entity instanceof EntityEnderCrystal || entity instanceof EntityThrowable || entity instanceof EntityItem ||
-                entity instanceof EntityDragon || entity instanceof EntityFireball || entity instanceof EntityBoat || entity instanceof EntityMinecart ||
-                entity instanceof EntityWither || entity instanceof EntityPlayer);
+        return entity instanceof EntityLiving && !(entity instanceof EntityDragon || entity instanceof EntityWither || entity instanceof EntityGolem);
     }
 
     @SubscribeEvent
