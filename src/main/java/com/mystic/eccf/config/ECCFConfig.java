@@ -10,7 +10,7 @@ public class ECCFConfig {
 
     public static int maxEntitiesPerChunk = 25;
 
-    public static String entityBlacklistIds = "minecraft:ender_dragon,minecraft:wither,minecraft:snow_golem";
+    public static String entityBlacklistIds = "minecraft:ender_dragon,minecraft:wither,minecraft:snowman";
 
     // Static initializers go after the properties!
     // This will run automatically when you retrieve any properties from this config class
