@@ -76,7 +76,7 @@ public class EntityUpdateOptimizer {
             return entity instanceof EntityLiving && !ECCFConfig.entityBlacklistIds.contains(entityId);
         }
         return false; // Handle the case where the entity doesn't have a valid ID
-    }forge
+    }
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
