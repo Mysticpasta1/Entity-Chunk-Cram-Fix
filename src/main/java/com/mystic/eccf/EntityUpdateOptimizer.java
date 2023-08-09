@@ -63,7 +63,7 @@ public class EntityUpdateOptimizer {
             ChunkPos chunkPos = getChunkPos(entity);
             int entityCount = getEntityCountInChunk(chunkPos, (WorldServer) world);
 
-            if (entityCount > ECCFConfig.maxEntitiesPerChunk.get()) {
+            if (entityCount > ECCFConfig.maxEntitiesPerChunk) {
                 unloadAndReloadChunk(chunkPos, (WorldServer) world);
                 entity.setDead();
                 pendingRemovalEntities.add(entity.getEntityId());
