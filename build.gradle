@@ -105,7 +105,7 @@ dependencies {
 
     // Example of deobfuscating a dependency
     // implementation rfg.deobf('curse.maven:had-enough-items-557549:4543375')
-    implementation rfg.deobf('curse.maven:supermartijn642s-config-lib-438332:3862959')
+    implementation rfg.deobf("curse.maven:configanytime-870276:4576653")
 
     if (project.use_mixins.toBoolean()) {
         // Change your mixin refmap name here:

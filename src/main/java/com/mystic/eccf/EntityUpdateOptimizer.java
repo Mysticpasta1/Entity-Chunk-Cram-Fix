@@ -1,9 +1,7 @@
 package com.mystic.eccf;
 
 import com.mystic.eccf.config.ECCFConfig;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityHanging;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.*;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.item.EntityBoat;
@@ -14,6 +12,7 @@ import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -30,10 +29,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Mod(modid = "eccf")
 public class EntityUpdateOptimizer {
@@ -63,7 +59,7 @@ public class EntityUpdateOptimizer {
             ChunkPos chunkPos = getChunkPos(entity);
             int entityCount = getEntityCountInChunk(chunkPos, (WorldServer) world);
 
-            if (entityCount > ECCFConfig.maxEntitiesPerChunk.get()) {
+            if (entityCount > ECCFConfig.maxEntitiesPerChunk) {
                 unloadAndReloadChunk(chunkPos, (WorldServer) world);
                 entity.setDead();
                 pendingRemovalEntities.add(entity.getEntityId());
@@ -74,7 +70,12 @@ public class EntityUpdateOptimizer {
     }
 
     private boolean shouldOptimizeEntity(Entity entity) {
-        return entity instanceof EntityLiving && !(entity instanceof EntityDragon || entity instanceof EntityWither || entity instanceof EntityGolem);
+        ResourceLocation entityIdLocation = EntityList.getKey(entity);
+        if (entityIdLocation != null) {
+            String entityId = entityIdLocation.toString();
+            return entity instanceof EntityLiving && !ECCFConfig.entityBlacklistIds.contains(entityId);
+        }
+        return false; // Handle the case where the entity doesn't have a valid ID
     }
 
     @SubscribeEvent

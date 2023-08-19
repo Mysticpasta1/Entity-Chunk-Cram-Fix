@@ -1,19 +1,30 @@
 package com.mystic.eccf.config;
 
+import com.cleanroommc.configanytime.ConfigAnytime;
+import net.minecraftforge.common.config.Config;
 
-import com.supermartijn642.configlib.api.ConfigBuilders;
-import com.supermartijn642.configlib.api.IConfigBuilder;
-
+import java.util.*;
 import java.util.function.Supplier;
-
+@Config(modid = "eccf")
 public class ECCFConfig {
-    public static final Supplier<Integer> maxEntitiesPerChunk;
 
-    static{
-        IConfigBuilder builder = ConfigBuilders.newTomlConfig("eccf", null, false);
-        builder.push("common");
-        maxEntitiesPerChunk = builder.comment("Max Number of Entities Per Chunk").define("maxEntitiesPerChunk", 25, 0, 50);
-        builder.pop();
-        builder.build();
+    public static int maxEntitiesPerChunk = 25;
+
+    public static String entityBlacklistIds = "minecraft:ender_dragon,minecraft:wither,minecraft:snowman";
+
+    // Static initializers go after the properties!
+    // This will run automatically when you retrieve any properties from this config class
+    static {
+        // Load the blacklist from the configuration
+        entityBlacklistIds = loadEntityBlacklist().toString();
+    }
+
+    // Custom method to deserialize the stored string back to a list
+    public static List<String> loadEntityBlacklist() {
+        List<String> blacklist = new ArrayList<>();
+        String storedBlacklist = entityBlacklistIds;
+        String[] ids = storedBlacklist.split(",");
+        blacklist.addAll(Arrays.asList(ids));
+        return blacklist;
     }
 }
